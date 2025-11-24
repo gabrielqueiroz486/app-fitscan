@@ -16,7 +16,8 @@ export default function CameraCapture({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -99,6 +100,22 @@ export default function CameraCapture({
     }
   };
 
+  const handleCameraClick = () => {
+    // Resetar o input para permitir selecionar a mesma foto novamente
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = "";
+      cameraInputRef.current.click();
+    }
+  };
+
+  const handleGalleryClick = () => {
+    // Resetar o input para permitir selecionar a mesma foto novamente
+    if (galleryInputRef.current) {
+      galleryInputRef.current.value = "";
+      galleryInputRef.current.click();
+    }
+  };
+
   return (
     <div className="min-h-screen p-6 pt-8">
       {/* Header */}
@@ -145,19 +162,28 @@ export default function CameraCapture({
         </div>
       </div>
 
+      {/* Hidden File Inputs */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleImageSelect}
+        className="hidden"
+      />
+      
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageSelect}
+        className="hidden"
+      />
+
       {/* Action Buttons */}
       <div className="space-y-3">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleImageSelect}
-          className="hidden"
-        />
-
         <button
-          onClick={() => fileInputRef.current?.click()}
+          onClick={handleCameraClick}
           disabled={isAnalyzing}
           className="w-full bg-gradient-to-r from-[#00FF7F] to-[#00CC66] text-black font-semibold py-5 rounded-2xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-[#00FF7F]/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -166,14 +192,7 @@ export default function CameraCapture({
         </button>
 
         <button
-          onClick={() => {
-            const input = document.createElement("input");
-            input.type = "file";
-            input.accept = "image/*";
-            input.onchange = (e) =>
-              handleImageSelect(e as unknown as React.ChangeEvent<HTMLInputElement>);
-            input.click();
-          }}
+          onClick={handleGalleryClick}
           disabled={isAnalyzing}
           className="w-full bg-[#1A1A1A] border border-[#2A2A2A] text-white font-semibold py-5 rounded-2xl flex items-center justify-center gap-3 hover:border-[#00FF7F]/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >

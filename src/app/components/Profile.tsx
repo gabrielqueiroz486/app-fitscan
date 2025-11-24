@@ -1,12 +1,18 @@
 "use client";
 
-import { ArrowLeft, User, Target, Activity, Bell, Shield } from "lucide-react";
+import { ArrowLeft, User, Target, Activity, Bell, Shield, LogOut } from "lucide-react";
+import { signOut, type AuthUser } from "@/lib/auth";
+import { useState } from "react";
 
 interface ProfileProps {
   onBack: () => void;
+  user: AuthUser | null;
+  onLogout: () => void;
 }
 
-export default function Profile({ onBack }: ProfileProps) {
+export default function Profile({ onBack, user, onLogout }: ProfileProps) {
+  const [loading, setLoading] = useState(false);
+
   const settings = [
     {
       icon: Target,
@@ -29,6 +35,18 @@ export default function Profile({ onBack }: ProfileProps) {
     },
   ];
 
+  const handleLogout = async () => {
+    setLoading(true);
+    try {
+      await signOut();
+      onLogout();
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen p-6 pt-8">
       {/* Header */}
@@ -47,8 +65,10 @@ export default function Profile({ onBack }: ProfileProps) {
         <div className="w-24 h-24 bg-gradient-to-br from-[#00FF7F] to-[#00CC66] rounded-full mx-auto mb-4 flex items-center justify-center">
           <User className="w-12 h-12 text-black" />
         </div>
-        <h2 className="text-2xl font-bold mb-2">Usuário FitScan</h2>
-        <p className="text-gray-400 mb-4">Membro desde Janeiro 2024</p>
+        <h2 className="text-2xl font-bold mb-2">
+          {user?.email?.split("@")[0] || "Usuário FitScan"}
+        </h2>
+        <p className="text-gray-400 mb-4 text-sm">{user?.email}</p>
         <div className="flex justify-center gap-8 pt-4 border-t border-[#2A2A2A]">
           <div>
             <p className="text-2xl font-bold text-[#00FF7F]">12</p>
@@ -92,6 +112,18 @@ export default function Profile({ onBack }: ProfileProps) {
           ))}
         </div>
       </div>
+
+      {/* Logout Button */}
+      <button
+        onClick={handleLogout}
+        disabled={loading}
+        className="w-full bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/30 rounded-2xl p-5 flex items-center justify-center gap-3 hover:border-red-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mb-8"
+      >
+        <LogOut className="w-5 h-5 text-red-400" />
+        <span className="font-semibold text-red-400">
+          {loading ? "Saindo..." : "Sair da Conta"}
+        </span>
+      </button>
 
       {/* About */}
       <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] border border-[#2A2A2A] rounded-2xl p-6">
